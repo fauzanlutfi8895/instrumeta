@@ -42,7 +42,7 @@ export const Register = async (req: Request, res: Response, next: NextFunction) 
     };
 
     await prisma.user.create({
-
+      data: newUser,
     })
     
     res.status(201).json({ message: "User registered successfully", user: newUser });
