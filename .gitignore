@@ -46,3 +46,7 @@ Thumbs.db
 .env
 
 /generated/prisma
+
+# Next.js
+.next
+out
