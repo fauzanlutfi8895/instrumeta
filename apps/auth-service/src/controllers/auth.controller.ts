@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { setCookie } from "../utils/cookie";
+import { prisma } from "@packages/lib/prisma";
 
 export const Login = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -37,9 +38,13 @@ export const Register = async (req: Request, res: Response, next: NextFunction) 
     const newUser = {
       username,
       password: hashedPassword,
-      role: "user",
+      role: "USER",
     };
 
+    await prisma.user.create({
+
+    })
+    
     res.status(201).json({ message: "User registered successfully", user: newUser });
   } catch (error) {
     return next(error);

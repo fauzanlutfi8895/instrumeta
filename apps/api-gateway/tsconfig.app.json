@@ -1,21 +1,16 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "outDir": "dist",
     "types": [
       "node",
       "express"
     ],
-    "rootDir": "../../",
-    "paths": {
-      "@packages/*": ["../../packages/*"]
-    },
+    "rootDir": "src",
     "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo"
   },
   "include": [
-    "src/**/*.ts",
-    "../../packages/**/*.ts"
+    "src/**/*.ts"
   ],
   "exclude": []
 }
