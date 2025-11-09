@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { AuthContainer } from "@/components/AuthContainer";
@@ -19,6 +20,7 @@ interface SignupFormData {
 
 export default function SignupPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [passwordMatchError, setPasswordMatchError] = useState("");
 
   const {
@@ -56,6 +58,8 @@ export default function SignupPage() {
       },
       {
         onSuccess: response => {
+          // Invalidate user query to refetch
+          queryClient.invalidateQueries({ queryKey: ["user"] });
           toast.success(`Selamat! Akun berhasil dibuat. Silakan login.`);
           setTimeout(() => {
             router.push("/login");

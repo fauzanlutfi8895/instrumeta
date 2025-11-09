@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowRight, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { AuthContainer } from "@/components/AuthContainer";
@@ -16,6 +17,7 @@ interface LoginFormData {
 
 export default function LoginPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -32,7 +34,9 @@ export default function LoginPage() {
 
   const onSubmit = (data: LoginFormData) => {
     login(data, {
-      onSuccess: () => {
+      onSuccess: (response) => {
+        // Invalidate user query to refetch
+        queryClient.invalidateQueries({ queryKey: ["user"] });
         toast.success(`Selamat datang! Login berhasil.`);
         setTimeout(() => {
           router.push("/");

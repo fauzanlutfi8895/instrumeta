@@ -6,11 +6,13 @@
 import express from "express";
 import router from "./routes/auth.route";
 import { errorMiddleware } from "@packages/error-handler/error-middleware";
+import cookiesParser from 'cookie-parser';
 
 const app = express();
 
 // Parsing JSON, harus ada supaya bisa terima form data
 app.use(express.json());
+app.use(cookiesParser());
 
 app.use("/api", router);
 

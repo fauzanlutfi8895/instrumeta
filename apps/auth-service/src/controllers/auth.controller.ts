@@ -101,6 +101,18 @@ export const RefreshToken = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
+export const GetUser = async (req: any, res: Response, next: NextFunction) => {
+  try {
+    const { username, role } = req.user;
+    res.status(200).json({ 
+      username, 
+      role: role || "USER"
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export const Logout = (req: Request, res: Response, next: NextFunction) => {
   try {
   } catch (error) {}

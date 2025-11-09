@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import { Product, useUpdateProduct, useDeleteProduct } from "@/hooks/useProducts";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { useAuth } from "@/context/AuthContext";
 import { Trash2, X } from "lucide-react";
+import { useUser } from "@/hooks/useUser";
 
 interface Props {
   product: Product | null;
@@ -13,7 +13,7 @@ interface Props {
 }
 
 export const ProductModal = ({ product, onClose }: Props) => {
-  const { user } = useAuth();
+  const { data: user } = useUser();
   const isAdmin = user?.role === "ADMIN";
   const updateMutation = useUpdateProduct();
   const deleteMutation = useDeleteProduct();
