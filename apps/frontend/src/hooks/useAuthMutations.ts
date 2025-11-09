@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
+import axiosInstance from "@/lib/axiosInstance";
 
 interface LoginPayload {
   username: string;
@@ -19,26 +20,11 @@ interface AuthResponse {
   };
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-
 export const useLogin = () => {
   return useMutation<AuthResponse, Error, LoginPayload>({
     mutationFn: async data => {
-      const response = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Login failed");
-      }
-
-      return response.json();
+      const response = await axiosInstance.post<AuthResponse>("/api/login", data);
+      return response.data;
     },
   });
 };
@@ -46,21 +32,8 @@ export const useLogin = () => {
 export const useSignup = () => {
   return useMutation<AuthResponse, Error, SignupPayload>({
     mutationFn: async data => {
-      const response = await fetch(`${API_URL}/auth/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Signup failed");
-      }
-
-      return response.json();
+      const response = await axiosInstance.post<AuthResponse>("/api/register", data);
+      return response.data;
     },
   });
 };
