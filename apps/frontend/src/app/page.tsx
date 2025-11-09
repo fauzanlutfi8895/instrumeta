@@ -4,11 +4,17 @@ import React, { useState } from "react";
 import { useGetProducts } from "@/hooks/useProducts";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductModal } from "@/components/ProductModal";
+import { CreateProductModal } from "@/components/CreateProductModal";
+import { useAuth } from "@/context/AuthContext";
+import { Plus } from "lucide-react";
 
 export default function IndexPage() {
   const { data: products, isLoading, isError, error } = useGetProducts();
+  const { user } = useAuth();
   const [selected, setSelected] = useState<any>(null);
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  const isAdmin = user?.role === "ADMIN";
 
   return (
     <main className="min-h-screen p-6 bg-gray-50">
@@ -19,11 +25,25 @@ export default function IndexPage() {
             <h1 className="text-3xl font-bold text-gray-900">Daftar Produk</h1>
             <p className="text-sm text-gray-500 mt-1">Kelola stok dan harga — klik produk untuk detail</p>
           </div>
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium text-gray-600">Mode Admin</label>
-            <button onClick={() => setIsAdmin(s => !s)} className={`px-4 py-2 rounded-lg font-medium transition-all ${isAdmin ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}>
-              {isAdmin ? "👤 ADMIN" : "👥 USER"}
-            </button>
+          <div className="flex items-center gap-4">
+            {user && (
+              <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                isAdmin
+                  ? "bg-blue-100 text-blue-700"
+                  : "bg-gray-100 text-gray-700"
+              }`}>
+                {isAdmin ? "👤 ADMIN" : "👥 USER"}
+              </div>
+            )}
+            {isAdmin && (
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition flex items-center gap-2 font-medium"
+              >
+                <Plus size={18} />
+                Tambah Produk
+              </button>
+            )}
           </div>
         </div>
 
@@ -61,7 +81,8 @@ export default function IndexPage() {
       </div>
 
       {/* Modal */}
-      {selected && <ProductModal product={selected} onClose={() => setSelected(null)} isAdmin={isAdmin} />}
+      {selected && <ProductModal product={selected} onClose={() => setSelected(null)} />}
+      {showCreateModal && <CreateProductModal onClose={() => setShowCreateModal(false)} />}
     </main>
   );
 }

@@ -13,8 +13,27 @@ export const useGetProducts = () => {
   return useQuery<Product[], Error>({
     queryKey: ["products"],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<Product[]>("/products");
-      return data;
+      const response = await axiosInstance.get<{ data: Product[] }>(
+        "/api/products"
+      );
+      return response.data.data;
+    },
+  });
+};
+
+export const useCreateProduct = () => {
+  const qc = useQueryClient();
+
+  return useMutation<Product, Error, Omit<Product, "id">>({
+    mutationFn: async (payload) => {
+      const { data } = await axiosInstance.post<{ data: Product }>(
+        "/api/products",
+        payload
+      );
+      return data.data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["products"] });
     },
   });
 };
@@ -22,11 +41,31 @@ export const useGetProducts = () => {
 export const useUpdateProduct = () => {
   const qc = useQueryClient();
 
-  return useMutation<Product, Error, Partial<Product> & { id: string | number }>({
-    mutationFn: async payload => {
-      const { id, ...rest } = payload as Partial<Product> & { id: string | number };
-      const { data } = await axiosInstance.put<Product>(`/products/${id}`, rest);
-      return data;
+  return useMutation<Product, Error, Partial<Product> & { id: string | number }>(
+    {
+      mutationFn: async (payload) => {
+        const { id, ...rest } = payload as Partial<Product> & {
+          id: string | number;
+        };
+        const { data } = await axiosInstance.put<{ data: Product }>(
+          `/api/products/${id}`,
+          rest
+        );
+        return data.data;
+      },
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: ["products"] });
+      },
+    }
+  );
+};
+
+export const useDeleteProduct = () => {
+  const qc = useQueryClient();
+
+  return useMutation<void, Error, string | number>({
+    mutationFn: async (id) => {
+      await axiosInstance.delete(`/products/products/${id}`);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["products"] });
