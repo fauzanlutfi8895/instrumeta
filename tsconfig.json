@@ -11,6 +11,9 @@
     },
     {
       "path": "./apps/frontend"
+    },
+    {
+      "path": "./apps/product-service"
     }
   ]
 }
