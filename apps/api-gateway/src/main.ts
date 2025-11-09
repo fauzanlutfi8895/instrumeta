@@ -19,8 +19,8 @@ app.use(cors(
 
 app.use(express.json());
 
+app.use('/product', proxy('http://localhost:6002'));
 app.use('/', proxy('http://localhost:6001'));
-app.use('/products', proxy('http://localhost:6002'));
 
 const port = process.env.PORT || 8080;
 const server = app.listen(port, () => {

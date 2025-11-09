@@ -14,7 +14,7 @@ export const useGetProducts = () => {
     queryKey: ["products"],
     queryFn: async () => {
       const response = await axiosInstance.get<{ data: Product[] }>(
-        "/api/products"
+        "product/api/get-products"
       );
       return response.data.data;
     },
@@ -27,7 +27,7 @@ export const useCreateProduct = () => {
   return useMutation<Product, Error, Omit<Product, "id">>({
     mutationFn: async (payload) => {
       const { data } = await axiosInstance.post<{ data: Product }>(
-        "/api/products",
+        "product/api/create-product",
         payload
       );
       return data.data;
@@ -48,7 +48,7 @@ export const useUpdateProduct = () => {
           id: string | number;
         };
         const { data } = await axiosInstance.put<{ data: Product }>(
-          `/api/products/${id}`,
+          `product/api/update-product/${id}`,
           rest
         );
         return data.data;
@@ -65,7 +65,7 @@ export const useDeleteProduct = () => {
 
   return useMutation<void, Error, string | number>({
     mutationFn: async (id) => {
-      await axiosInstance.delete(`/products/products/${id}`);
+      await axiosInstance.delete(`product/api/delete-product/${id}`);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["products"] });
