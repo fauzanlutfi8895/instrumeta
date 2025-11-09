@@ -10,21 +10,64 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
-// Add request interceptor for error handling
+let isRefreshing = false;
+let failedQueue: any[] = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
 axiosInstance.interceptors.response.use(
   response => response,
-  error => {
-    if (error.response) {
-      // Server responded with a status code outside of 2xx range
-      const message = error.response.data?.message || error.response.statusText || "An error occurred";
-      return Promise.reject(new Error(message));
-    } else if (error.request) {
-      // Request was made but no response was received
-      return Promise.reject(new Error("No response from server"));
-    } else {
-      // Error in setting up the request
-      return Promise.reject(error);
+  async error => {
+    const originalRequest = error.config;
+
+    // Jika status 401 (Unauthorized) → coba refresh token
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        // Tunggu refresh token selesai
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(token => {
+            originalRequest.headers["Authorization"] = `Bearer ${token}`;
+            return axiosInstance(originalRequest);
+          })
+          .catch(err => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const response = await axios.post(
+          `${API_URL}/auth/refresh-token`,
+          {},
+          { withCredentials: true } // kirim cookie refresh token
+        );
+
+        const newAccessToken = response.data.accessToken;
+
+        // Set default header untuk request berikutnya
+        axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
+
+        processQueue(null, newAccessToken);
+        return axiosInstance(originalRequest);
+      } catch (err) {
+        processQueue(err, null);
+        return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
+      }
     }
+    return Promise.reject(error);
   }
 );
 

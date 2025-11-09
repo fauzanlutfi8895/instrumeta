@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { JsonWebTokenError } from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { setCookie } from "../utils/cookie";
 import { prisma } from "@packages/lib/prisma";
@@ -48,7 +48,7 @@ export const Login = async (req: Request, res: Response, next: NextFunction) => 
 export const Register = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { username, password, role } = req.body;
-    
+
     if (!username || !password) {
       return next(new ValidationError("Username and password are required."));
     }
@@ -66,6 +66,36 @@ export const Register = async (req: Request, res: Response, next: NextFunction) 
     });
 
     res.status(201).json({ message: "User registered successfully", user: newUser });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const RefreshToken = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const refreshToken = req.cookies["refreshToken"];
+    if (!refreshToken) {
+      return next(new ValidationError("No refresh token provided"));
+    }
+
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET as string) as { username: string; role: string };
+
+    if (!decoded) {
+      return next(new JsonWebTokenError("Forbidden. Invalid refresh token"));
+    }
+
+    const account = await prisma.user.findUnique({
+      where: { username: decoded.username },
+    });
+
+    if (!account) {
+      return next(new AuthError("User not found"));
+    }
+
+    const newAccessToken = jwt.sign({ username: decoded.username, role: decoded.role }, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: "5m" });
+    setCookie(res, "accessToken", newAccessToken);
+
+    res.status(200).json({ success: true });
   } catch (error) {
     return next(error);
   }
