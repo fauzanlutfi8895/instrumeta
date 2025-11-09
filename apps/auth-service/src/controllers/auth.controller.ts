@@ -49,7 +49,7 @@ export const Login = async (req: Request, res: Response, next: NextFunction) => 
 export const Register = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { username, password, role } = req.body;
-    console.log("ada isinya:", username, password, role);
+    
     if (!username || !password) {
       return next(new ValidationError("Username and password are required."));
     }
