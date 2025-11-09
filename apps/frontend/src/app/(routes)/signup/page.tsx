@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Loader2, AlertCircle } from "lucide-react";
+import toast from "react-hot-toast";
 import { AuthContainer } from "@/components/AuthContainer";
 import { FormInput } from "@/components/FormInput";
 import { ToggleRole } from "@/components/ToggleRole";
@@ -41,6 +42,7 @@ export default function SignupPage() {
     // Client-side validation
     if (data.password !== data.confirmPassword) {
       setPasswordMatchError("Password tidak cocok");
+      toast.error("Password tidak cocok");
       return;
     }
 
@@ -53,8 +55,14 @@ export default function SignupPage() {
         role: data.role,
       },
       {
-        onSuccess: () => {
-          router.push("/login");
+        onSuccess: response => {
+          toast.success(`Selamat! Akun berhasil dibuat. Silakan login.`);
+          setTimeout(() => {
+            router.push("/login");
+          }, 1500);
+        },
+        onError: error => {
+          toast.error(error.message || "Terjadi kesalahan saat mendaftar");
         },
       }
     );

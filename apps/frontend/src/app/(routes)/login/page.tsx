@@ -4,6 +4,7 @@ import { useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Loader2 } from "lucide-react";
+import toast from "react-hot-toast";
 import { AuthContainer } from "@/components/AuthContainer";
 import { FormInput } from "@/components/FormInput";
 import { useLogin } from "@/hooks/useAuthMutations";
@@ -32,7 +33,13 @@ export default function LoginPage() {
   const onSubmit = (data: LoginFormData) => {
     login(data, {
       onSuccess: () => {
-        router.push("/");
+        toast.success(`Selamat datang! Login berhasil.`);
+        setTimeout(() => {
+          router.push("/");
+        }, 1500);
+      },
+      onError: error => {
+        toast.error(error.message || "Terjadi kesalahan saat login");
       },
     });
   };
@@ -40,14 +47,14 @@ export default function LoginPage() {
   // Handle Enter key
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.key === "Enter") {
+      if (e.key === "Enter" && !isPending) {
         handleSubmit(onSubmit)();
       }
     };
 
     document.addEventListener("keydown", handleKeyPress);
     return () => document.removeEventListener("keydown", handleKeyPress);
-  }, [handleSubmit, onSubmit]);
+  }, [handleSubmit, onSubmit, isPending]);
 
   return (
     <AuthContainer title="Masuk" subtitle="Akses akun Instrumeta Anda" linkText="Daftar" linkHref="/signup" linkQuestion="Belum punya akun?">

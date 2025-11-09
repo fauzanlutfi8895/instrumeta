@@ -5,6 +5,7 @@
 
 import express from "express";
 import router from "./routes/auth.route";
+import { errorMiddleware } from "@packages/error-handler/error-middleware";
 
 const app = express();
 
@@ -12,6 +13,9 @@ const app = express();
 app.use(express.json());
 
 app.use("/api", router);
+
+// Error middleware harus di akhir
+app.use(errorMiddleware);
 
 const port = process.env.PORT || 6001;
 const server = app.listen(port, () => {

@@ -4,7 +4,6 @@ import bcrypt from "bcryptjs";
 import { setCookie } from "../utils/cookie";
 import { prisma } from "@packages/lib/prisma";
 import { AuthError, ValidationError } from "@packages/error-handler";
-import { use } from "react";
 
 export const Login = async (req: Request, res: Response, next: NextFunction) => {
   try {
