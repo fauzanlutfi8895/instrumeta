@@ -48,7 +48,7 @@ axiosInstance.interceptors.response.use(
 
       try {
         const response = await axios.post(
-          `${API_URL}/auth/refresh-token`,
+          `${API_URL}/api/refresh-token`,
           {},
           { withCredentials: true } // kirim cookie refresh token
         );

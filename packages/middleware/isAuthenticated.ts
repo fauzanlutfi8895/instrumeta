@@ -5,7 +5,7 @@ import jwt, { TokenExpiredError, JsonWebTokenError } from "jsonwebtoken";
 
 const isAuthenticated = async (req: any, res: Response, next: NextFunction) => {
   try {
-    const token = req.cookies["accessToken"];
+    const token = req.cookies["accessToken"] || req.headers.authorization?.split(" ")[1];
     if (!token) {
       return next(new AuthError("Unauthorized: Token missing"));
     }

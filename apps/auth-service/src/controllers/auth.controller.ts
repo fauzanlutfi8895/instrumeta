@@ -27,7 +27,7 @@ export const Login = async (req: Request, res: Response, next: NextFunction) => 
     }
 
     // Tambahkan role disini
-    const accessToken = jwt.sign({ username, role: user.role }, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: "5m" });
+    const accessToken = jwt.sign({ username, role: user.role }, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: "1m" });
     const refreshToken = jwt.sign({ username, role: user.role }, process.env.REFRESH_TOKEN_SECRET as string, { expiresIn: "7d" });
 
     setCookie(res, "accessToken", accessToken);
@@ -92,7 +92,7 @@ export const RefreshToken = async (req: Request, res: Response, next: NextFuncti
       return next(new AuthError("User not found"));
     }
 
-    const newAccessToken = jwt.sign({ username: decoded.username, role: decoded.role }, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: "5m" });
+    const newAccessToken = jwt.sign({ username: decoded.username, role: decoded.role }, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: "1m" });
     setCookie(res, "accessToken", newAccessToken);
 
     res.status(200).json({ success: true });
