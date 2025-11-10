@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Product, useUpdateProduct, useDeleteProduct } from "@/hooks/useProducts";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { Trash2, X, MapPin, Users, Calendar, ExternalLink, Edit2 } from "lucide-react";
+import { Trash2, X, MapPin, Users, Calendar, ExternalLink, Edit2, Check, AlertCircle } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import * as Icons from "lucide-react";
 
@@ -15,6 +15,13 @@ interface Props {
 
 const getIconComponent = (iconName: string) => {
   return (Icons as any)[iconName] || Icons.BookOpen;
+};
+
+const formatDateToIndonesian = (dateString: string | undefined) => {
+  if (!dateString) return "TBD";
+  const date = new Date(dateString);
+  const options: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' };
+  return date.toLocaleDateString('id-ID', options);
 };
 
 export const ProductModal = ({ product, onClose }: Props) => {
@@ -115,11 +122,18 @@ export const ProductModal = ({ product, onClose }: Props) => {
                 </div>
                 <div className="bg-purple-50 rounded-lg p-4 text-center">
                   <Calendar size={20} className="text-purple-600 mx-auto mb-2" />
-                  <p className="text-sm font-bold text-gray-900">{product.startDate || "TBD"}</p>
+                  <p className="text-sm font-bold text-gray-900">{formatDateToIndonesian(product.startDate)}</p>
                 </div>
-                <div className="bg-orange-50 rounded-lg p-4 text-center">
-                  <span className={`text-sm font-bold ${product.isActive ? "text-green-600" : "text-gray-600"}`}>
-                    {product.isActive ? "Aktif" : "Nonaktif"}
+                <div className={`rounded-lg p-4 text-center ${product.isActive ? "bg-green-50" : "bg-yellow-50"}`}>
+                  <div className="flex items-center justify-center mb-2">
+                    {product.isActive ? (
+                      <Check size={20} className="text-green-600" />
+                    ) : (
+                      <AlertCircle size={20} className="text-yellow-600" />
+                    )}
+                  </div>
+                  <span className={`text-sm font-bold ${product.isActive ? "text-green-600" : "text-yellow-600"}`}>
+                    {product.isActive ? "Aktif" : "Ditutup"}
                   </span>
                 </div>
               </div>

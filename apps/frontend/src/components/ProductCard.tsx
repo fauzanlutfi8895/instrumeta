@@ -15,10 +15,17 @@ const getIconComponent = (iconName: string) => {
   return (Icons as any)[iconName] || Icons.BookOpen;
 };
 
+// Format date to Indonesian format (e.g., "Rabu, 8 Nov 2025")
+const formatDateToIndonesian = (dateString: string | undefined) => {
+  if (!dateString) return "TBD";
+  const date = new Date(dateString);
+  const options: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' };
+  return date.toLocaleDateString('id-ID', options);
+};
+
 export const ProductCard = ({ product, onClick }: Props) => {
   const IconComponent = getIconComponent(product.icon || "BookOpen");
   const bgClass = product.backgroundColor || "from-blue-500 via-blue-600 to-blue-700";
-  const isStatusActive = product.isActive ? "Tersedia" : "Nonaktif";
 
   return (
     <article 
@@ -52,42 +59,42 @@ export const ProductCard = ({ product, onClick }: Props) => {
         </div>
 
         {/* Stats Row */}
-        <div className="flex items-center gap-4 py-3 border-y border-gray-100">
-          <div className="flex items-center gap-1 text-sm text-gray-600">
-            <Users size={16} className="text-blue-500" />
-            <span>{product.participants || 0} peserta</span>
+        <div className="flex items-center gap-3 py-3 border-y border-gray-100 flex-wrap">
+          <div className="flex items-center gap-1 text-sm text-gray-600 min-w-max">
+            <Users size={16} className="text-blue-500 flex-shrink-0" />
+            <span className="truncate">{product.participants || 0} peserta</span>
           </div>
-          <div className="flex items-center gap-1 text-sm text-gray-600">
-            <Clock size={16} className="text-blue-500" />
-            <span>{product.startDate || "TBD"}</span>
+          <div className="flex items-center gap-1 text-sm text-gray-600 min-w-max">
+            <Clock size={16} className="text-blue-500 flex-shrink-0" />
+            <span className="truncate">{formatDateToIndonesian(product.startDate)}</span>
           </div>
           <div className="flex-1" />
           {product.isActive ? (
             product.stock > 0 ? (
-              <span className="text-xs font-semibold px-2 py-1 bg-green-100 text-green-700 rounded-full">
+              <span className="text-xs font-semibold px-2 py-1 bg-green-100 text-green-700 rounded-full whitespace-nowrap">
                 Tersedia
               </span>
             ) : (
-              <span className="text-xs font-semibold px-2 py-1 bg-red-100 text-red-700 rounded-full">
+              <span className="text-xs font-semibold px-2 py-1 bg-red-100 text-red-700 rounded-full whitespace-nowrap">
                 Habis
               </span>
             )
           ) : (
-            <span className="text-xs font-semibold px-2 py-1 bg-gray-100 text-gray-700 rounded-full">
-              Nonaktif
+            <span className="text-xs font-semibold px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full whitespace-nowrap">
+              Ditutup
             </span>
           )}
         </div>
 
         {/* Footer dengan Price dan CTA */}
-        <div className="flex items-center justify-between pt-2">
-          <div>
+        <div className="flex items-center justify-between pt-2 gap-2">
+          <div className="min-w-0">
             <p className="text-xs text-gray-500">Harga Kelas</p>
-            <p className="text-xl font-bold text-blue-600">
+            <p className="text-xl font-bold text-blue-600 truncate">
               Rp{product.price.toLocaleString()}
             </p>
           </div>
-          <button className="p-2 bg-blue-50 rounded-lg text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
+          <button className="p-2 bg-blue-50 rounded-lg text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all flex-shrink-0">
             <ArrowRight size={20} />
           </button>
         </div>
