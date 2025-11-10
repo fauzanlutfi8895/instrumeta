@@ -6,15 +6,30 @@ import { useUser } from "@/hooks/useUser";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductModal } from "@/components/ProductModal";
 import { CreateProductModal } from "@/components/CreateProductModal";
-import { Plus } from "lucide-react";
+import { Plus, LogOut } from "lucide-react";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import axiosInstance from "@/lib/axiosInstance";
 
-export default function IndexPage() {
+export default function DashboardPage() {
   const { data: products, isLoading, isError, error } = useGetProducts();
   const { data: user } = useUser();
+  const router = useRouter();
   const [selected, setSelected] = useState<any>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const isAdmin = user?.role === "ADMIN";
+
+  const handleLogout = async () => {
+    try {
+      axiosInstance.post("/api/logout");
+      toast.success("Logout berhasil");
+      // Middleware akan redirect ke /login
+      router.push("/login");
+    } catch (error) {
+      toast.error("Gagal logout");
+    }
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -40,6 +55,13 @@ export default function IndexPage() {
               }`}>
                 {isAdmin ? "👤 ADMIN" : "👥 USER"}
               </div>
+              <button
+                onClick={handleLogout}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600 hover:text-gray-900"
+                title="Logout"
+              >
+                <LogOut size={20} />
+              </button>
             </div>
           )}
         </div>

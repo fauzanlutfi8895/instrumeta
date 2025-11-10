@@ -115,5 +115,13 @@ export const GetUser = async (req: any, res: Response, next: NextFunction) => {
 
 export const Logout = (req: Request, res: Response, next: NextFunction) => {
   try {
-  } catch (error) {}
+    // Clear cookies
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+    res.clearCookie("token");
+    
+    res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    return next(error);
+  }
 };
