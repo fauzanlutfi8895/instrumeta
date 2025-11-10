@@ -4,13 +4,18 @@ import React, { useState } from "react";
 import { Product, useUpdateProduct, useDeleteProduct } from "@/hooks/useProducts";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { Trash2, X } from "lucide-react";
+import { Trash2, X, MapPin, Users, Calendar, ExternalLink, Edit2 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
+import * as Icons from "lucide-react";
 
 interface Props {
   product: Product | null;
   onClose: () => void;
 }
+
+const getIconComponent = (iconName: string) => {
+  return (Icons as any)[iconName] || Icons.BookOpen;
+};
 
 export const ProductModal = ({ product, onClose }: Props) => {
   const { data: user } = useUser();
@@ -18,12 +23,12 @@ export const ProductModal = ({ product, onClose }: Props) => {
   const updateMutation = useUpdateProduct();
   const deleteMutation = useDeleteProduct();
   const [isDeleteConfirm, setIsDeleteConfirm] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
   } = useForm<Partial<Product & { id: string | number }>>({
     defaultValues: product || {},
   });
@@ -34,16 +39,20 @@ export const ProductModal = ({ product, onClose }: Props) => {
 
   if (!product) return null;
 
+  const IconComponent = getIconComponent(product.icon || "BookOpen");
+  const bgClass = product.backgroundColor || "from-blue-500 via-blue-600 to-blue-700";
+
   const onSubmit = (values: any) => {
     updateMutation.mutate(
       { id: product.id, ...values },
       {
         onSuccess: () => {
-          toast.success("Produk berhasil diperbarui");
+          toast.success("Kelas berhasil diperbarui");
+          setIsEditMode(false);
           onClose();
         },
         onError: (err: Error) => {
-          toast.error(err.message || "Gagal memperbarui produk");
+          toast.error(err.message || "Gagal memperbarui kelas");
         },
       }
     );
@@ -52,173 +61,230 @@ export const ProductModal = ({ product, onClose }: Props) => {
   const handleDelete = () => {
     deleteMutation.mutate(product.id, {
       onSuccess: () => {
-        toast.success("Produk berhasil dihapus");
+        toast.success("Kelas berhasil dihapus");
         onClose();
       },
       onError: (err: Error) => {
-        toast.error(err.message || "Gagal menghapus produk");
+        toast.error(err.message || "Gagal menghapus kelas");
       },
     });
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
-      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">{product.name}</h2>
-            <p className="text-sm text-gray-500 mt-1">
-              Rp{product.price.toLocaleString()}
-            </p>
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        {/* Hero Section */}
+        <div className={`relative h-40 bg-gradient-to-br ${bgClass} flex items-center justify-center`}>
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full transform translate-x-1/3 -translate-y-1/3" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full transform -translate-x-1/4 translate-y-1/3" />
           </div>
+          <IconComponent size={56} className="text-white relative z-10" />
+          
+          {/* Close Button */}
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-lg transition"
+            className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-lg transition z-20"
           >
-            <X size={20} className="text-gray-500" />
+            <X size={24} className="text-white" />
           </button>
         </div>
 
-        <div className="flex items-center justify-between mb-4">
-          <div className="text-sm">
-            <span className="text-gray-500">Stok: </span>
-            <span className="font-semibold text-gray-900">{product.stock}</span>
-          </div>
-          {isAdmin && (
-            <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
-              Mode Edit
-            </span>
-          )}
-        </div>
+        {/* Content */}
+        <div className="p-8">
+          {!isEditMode ? (
+            <>
+              {/* Header Info */}
+              <div className="mb-6">
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h2>
+                <p className="text-lg font-semibold text-blue-600">Rp{product.price.toLocaleString()}</p>
+              </div>
 
-        <div className="mt-4 mb-6">
-          <p className="text-sm text-gray-600">
-            {product.description || "Tidak ada deskripsi."}
-          </p>
-        </div>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 pb-6 border-b border-gray-200">
+                <div className="bg-blue-50 rounded-lg p-4 text-center">
+                  <Users size={20} className="text-blue-600 mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-gray-900">{product.participants || 0}</p>
+                  <p className="text-xs text-gray-600 mt-1">Peserta</p>
+                </div>
+                <div className="bg-green-50 rounded-lg p-4 text-center">
+                  <span className="text-2xl font-bold text-green-600">{product.stock}</span>
+                  <p className="text-xs text-gray-600 mt-2">Kuota</p>
+                </div>
+                <div className="bg-purple-50 rounded-lg p-4 text-center">
+                  <Calendar size={20} className="text-purple-600 mx-auto mb-2" />
+                  <p className="text-sm font-bold text-gray-900">{product.startDate || "TBD"}</p>
+                </div>
+                <div className="bg-orange-50 rounded-lg p-4 text-center">
+                  <span className={`text-sm font-bold ${product.isActive ? "text-green-600" : "text-gray-600"}`}>
+                    {product.isActive ? "Aktif" : "Nonaktif"}
+                  </span>
+                </div>
+              </div>
 
-        {isAdmin && !isDeleteConfirm && (
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-3"
-          >
-            <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nama
-              </label>
-              <input
-                {...register("name")}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {errors.name && (
-                <p className="text-xs text-red-600 mt-1">{errors.name.message}</p>
+              {/* Location */}
+              {product.location && (
+                <div className="mb-6 flex items-start gap-3">
+                  <MapPin size={20} className="text-blue-600 flex-shrink-0 mt-1" />
+                  <div>
+                    <p className="text-sm text-gray-600">Lokasi</p>
+                    <p className="font-semibold text-gray-900">{product.location}</p>
+                  </div>
+                </div>
               )}
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Harga
-              </label>
-              <input
-                type="number"
-                {...register("price", { valueAsNumber: true })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {errors.price && (
-                <p className="text-xs text-red-600 mt-1">{errors.price.message}</p>
+              {/* Description */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Deskripsi</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  {product.description || "Tidak ada deskripsi untuk kelas ini."}
+                </p>
+              </div>
+
+              {/* Registration Link */}
+              {product.registrationLink && (
+                <div className="mb-6">
+                  <a
+                    href={product.registrationLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:shadow-lg transition"
+                  >
+                    <span>Daftar Sekarang</span>
+                    <ExternalLink size={18} />
+                  </a>
+                </div>
               )}
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Stok
-              </label>
-              <input
-                type="number"
-                {...register("stock", { valueAsNumber: true })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {errors.stock && (
-                <p className="text-xs text-red-600 mt-1">{errors.stock.message}</p>
+              {/* Admin Actions */}
+              {isAdmin && (
+                <div className="flex gap-3 pt-4 border-t border-gray-200">
+                  <button
+                    onClick={() => setIsEditMode(true)}
+                    className="flex-1 px-4 py-3 bg-blue-50 text-blue-600 font-semibold rounded-lg hover:bg-blue-100 transition flex items-center justify-center gap-2"
+                  >
+                    <Edit2 size={18} />
+                    Edit Kelas
+                  </button>
+                  <button
+                    onClick={() => setIsDeleteConfirm(true)}
+                    className="flex-1 px-4 py-3 bg-red-50 text-red-600 font-semibold rounded-lg hover:bg-red-100 transition flex items-center justify-center gap-2"
+                  >
+                    <Trash2 size={18} />
+                    Hapus
+                  </button>
+                </div>
               )}
-            </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Deskripsi
-              </label>
-              <textarea
-                {...register("description")}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                rows={3}
-              />
-            </div>
+              {!isAdmin && !product.registrationLink && (
+                <div className="flex justify-end pt-4 border-t border-gray-200">
+                  <button
+                    onClick={onClose}
+                    className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+                  >
+                    Tutup
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            /* Edit Mode */
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <h3 className="text-lg font-semibold text-gray-900">Edit Kelas</h3>
 
-            <div className="md:col-span-2 flex items-center justify-between gap-2 mt-4">
-              <button
-                type="button"
-                onClick={() => setIsDeleteConfirm(true)}
-                className="px-3 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition flex items-center gap-2"
-              >
-                <Trash2 size={16} />
-                Hapus
-              </button>
-              <div className="flex gap-2">
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Nama Kelas
+                </label>
+                <input
+                  {...register("name")}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Deskripsi
+                </label>
+                <textarea
+                  {...register("description")}
+                  rows={3}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    Harga (Rp)
+                  </label>
+                  <input
+                    type="number"
+                    {...register("price", { valueAsNumber: true })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    Kuota
+                  </label>
+                  <input
+                    type="number"
+                    {...register("stock", { valueAsNumber: true })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  disabled={updateMutation.isPending}
+                  className="flex-1 px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+                >
+                  {updateMutation.isPending ? "Menyimpan..." : "Simpan Perubahan"}
+                </button>
                 <button
                   type="button"
-                  onClick={onClose}
-                  className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+                  onClick={() => setIsEditMode(false)}
+                  className="px-6 py-3 border border-gray-300 text-gray-900 font-semibold rounded-lg hover:bg-gray-50 transition"
                 >
                   Batal
                 </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
-                >
-                  Simpan
-                </button>
+              </div>
+            </form>
+          )}
+
+          {/* Delete Confirmation */}
+          {isDeleteConfirm && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <div className="absolute inset-0 bg-black/50" onClick={() => setIsDeleteConfirm(false)} />
+              <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-3">Hapus Kelas?</h3>
+                <p className="text-gray-600 mb-6">
+                  Apakah Anda yakin ingin menghapus kelas "{product.name}"? Tindakan ini tidak dapat dibatalkan.
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setIsDeleteConfirm(false)}
+                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-900 font-semibold rounded-lg hover:bg-gray-50 transition"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    disabled={deleteMutation.isPending}
+                    className="flex-1 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+                  >
+                    {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+                  </button>
+                </div>
               </div>
             </div>
-          </form>
-        )}
-
-        {isAdmin && isDeleteConfirm && (
-          <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-800 mb-4">
-              Apakah Anda yakin ingin menghapus produk ini? Tindakan ini tidak dapat
-              dibatalkan.
-            </p>
-            <div className="flex items-center justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setIsDeleteConfirm(false)}
-                className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
-              >
-                Batalkan
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
-              >
-                Hapus Produk
-              </button>
-            </div>
-          </div>
-        )}
-
-        {!isAdmin && (
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
-            >
-              Tutup
-            </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

@@ -25,5 +25,12 @@ model Product {
   description String?
   price Float
   stock Int @default(0)
+  participants Int @default(0)
+  startDate String?
+  location String?
+  isActive Boolean @default(true)
+  icon String @default("BookOpen")
+  backgroundColor String @default("from-blue-500 to-blue-700")
+  registrationLink String?
   createdAt DateTime @default(now())
 }

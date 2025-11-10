@@ -7,6 +7,13 @@ export interface Product {
   price: number;
   stock: number;
   description?: string;
+  participants?: number;
+  startDate?: string;
+  location?: string;
+  isActive?: boolean;
+  icon?: string;
+  backgroundColor?: string;
+  registrationLink?: string;
 }
 
 export const useGetProducts = () => {
