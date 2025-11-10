@@ -17,18 +17,23 @@ export default function IndexPage() {
   const isAdmin = user?.role === "ADMIN";
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       {/* Navbar with Role */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Instrumeta</h1>
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-lg">I</span>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">Instrumeta</h1>
+          </div>
           {user && (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <div className="text-right">
-                <p className="text-sm text-gray-600">Login sebagai</p>
+                <p className="text-xs text-gray-500">Login sebagai</p>
                 <p className="font-semibold text-gray-900">{user.username}</p>
               </div>
-              <div className={`px-4 py-2 rounded-lg text-sm font-bold ${
+              <div className={`px-4 py-2 rounded-full text-sm font-bold ${
                 isAdmin
                   ? "bg-blue-100 text-blue-700"
                   : "bg-green-100 text-green-700"
@@ -40,21 +45,21 @@ export default function IndexPage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Daftar Produk</h1>
-            <p className="text-sm text-gray-500 mt-1">Kelola stok dan harga — klik produk untuk detail</p>
-          </div>
-          <div className="flex items-center gap-4">
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        {/* Header Section */}
+        <div className="mb-12">
+          <div className="flex items-start justify-between gap-8">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">Kelas Instrumen Musik</h1>
+              <p className="text-gray-600">Pelajari berbagai instrumen dari para ahli. Klik kartu untuk melihat detail lengkap.</p>
+            </div>
             {isAdmin && (
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition flex items-center gap-2 font-medium"
+                className="flex-shrink-0 px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:shadow-lg hover:from-blue-700 hover:to-blue-800 transition-all font-semibold flex items-center gap-2"
               >
-                <Plus size={18} />
-                Tambah Produk
+                <Plus size={20} />
+                Tambah Kelas
               </button>
             )}
           </div>
@@ -77,7 +82,7 @@ export default function IndexPage() {
 
         {/* Product Grid */}
         {products && products.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-max">
             {products.map(product => (
               <ProductCard key={product.id} product={product} onClick={() => setSelected(product)} />
             ))}
