@@ -50,8 +50,8 @@ export default function IndexPage() {
         <div className="mb-12">
           <div className="flex items-start justify-between gap-8">
             <div className="flex-1">
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">Kelas Instrumen Musik</h1>
-              <p className="text-gray-600">Pelajari berbagai instrumen dari para ahli. Klik kartu untuk melihat detail lengkap.</p>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">Kumpulan Course dari Instrumeta</h1>
+              <p className="text-gray-600">Pelajari berbagai course dari para ahli. Klik kartu untuk melihat detail lengkap.</p>
             </div>
             {isAdmin && (
               <button
